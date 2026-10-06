@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClarityIQ - Code to Clarity</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --navy   : #0A1628;
+      --navy2  : #112244;
+      --teal   : #00B4D8;
+      --teal2  : #0096C7;
+      --teal3  : #90E0EF;
+      --accent : #FF6B35;
+      --green  : #10B981;
+      --white  : #FFFFFF;
+      --bosch  : #EA0016;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: #0d1b2e;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    /* ══════════════════════════════════════════
+       POSTER CANVAS  — A3 landscape proportions
+    ══════════════════════════════════════════ */
+    .poster {
+      width: 1200px;
+      background: var(--navy);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,180,216,0.15);
+      position: relative;
+    }
+
+    /* ── Decorative background blobs ── */
+    .poster::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: -80px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,180,216,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .poster::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(255,107,53,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ════════════════════════════════════════
+       HERO BAND
+    ════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #0A1628 0%, #0d2040 40%, #0f2a50 100%);
+      padding: 56px 64px 48px;
+      border-bottom: 1px solid rgba(0,180,216,0.18);
+      display: flex;
+      align-items: center;
+      gap: 48px;
+    }
+
+    /* Grid lines overlay on hero */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,180,216,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,180,216,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .hero-left { flex: 1; position: relative; }
+
+    .bosch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(234,0,22,0.12);
+      border: 1px solid rgba(234,0,22,0.35);
+      color: #ff4d5e;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .bosch-dot {
+      width: 8px; height: 8px;
+      background: var(--bosch);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--bosch);
+    }
+
+    .hero-title {
+      font-size: 4.2rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+    .hero-title .to { color: rgba(255,255,255,0.35); font-weight: 400; }
+    .hero-title .clarity {
+      color: var(--teal);
+      position: relative;
+    }
+    .hero-title .clarity::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -4px;
+      width: 100%; height: 3px;
+      background: linear-gradient(90deg, var(--teal), transparent);
+      border-radius: 2px;
+    }
+
+    .hero-tagline {
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 28px;
+      letter-spacing: 0.01em;
+    }
+    .hero-tagline strong {
+      color: var(--teal3);
+      font-weight: 600;
+    }
+
+    .hero-vote-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--accent) 0%, #e05520 100%);
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 14px 28px;
+      border-radius: 14px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 28px rgba(255,107,53,0.4);
+    }
+    .hero-vote-cta .arrow {
+      font-size: 1.1rem;
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateX(0); }
+      50%      { transform: translateX(4px); }
+    }
+
+    /* Right side — visual mock */
+    .hero-right {
+      position: relative;
+      width: 340px;
+      flex-shrink: 0;
+    }
+
+    .mock-window {
+      background: #0d1f38;
+      border: 1px solid rgba(0,180,216,0.25);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .mock-titlebar {
+      background: #0a1828;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.r { background: #ff5f56; }
+    .dot.y { background: #febc2e; }
+    .dot.g { background: #28c840; }
+    .mock-titlebar .url-bar {
+      flex: 1;
+      margin-left: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.35);
+      font-family: monospace;
+    }
+    .mock-body { padding: 20px; }
+    .mock-heading {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--teal);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .mock-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.72rem;
+      margin-bottom: 10px;
+      font-family: 'Inter', sans-serif;
+    }
+    .mock-upload {
+      border: 2px dashed rgba(0,180,216,0.3);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .mock-upload .fold { font-size: 1.4rem; }
+    .mock-upload p { font-size: 0.65rem; color: rgba(255,255,255,0.35); margin-top: 4px; }
+    .mock-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,180,216,0.1);
+      border: 1px solid rgba(0,180,216,0.25);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.65rem;
+      color: var(--teal3);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .mock-btn {
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal2) 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: default;
+      letter-spacing: 0.03em;
+    }
+    .mock-badge-out {
+      position: absolute;
+      top: -14px; right: -14px;
+      background: linear-gradient(135deg, var(--green), #0d9669);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(16,185,129,0.5);
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ════════════════════════════════════════
+       PROBLEM STRIP
+    ════════════════════════════════════════ */
+    .problem-strip {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(90deg, rgba(255,107,53,0.08) 0%, rgba(255,107,53,0.03) 100%);
+      border-bottom: 1px solid rgba(255,107,53,0.12);
+      padding: 28px 64px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .problem-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .problem-label::after {
+      content: '';
+      width: 28px; height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+    .problem-text {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.75);
+      font-weight: 400;
+      line-height: 1.5;
+    }
+    .problem-text strong { color: var(--white); font-weight: 700; }
+
+    /* ════════════════════════════════════════
+       BODY — 3-column layout
+    ════════════════════════════════════════ */
+    .body-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .body-col {
+      padding: 40px 40px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .body-col:last-child { border-right: none; }
+
+    .col-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .col-label-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(0,180,216,0.2);
+    }
+
+    /* HOW IT WORKS */
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0,180,216,0.2), rgba(0,180,216,0.08));
+      border: 1px solid rgba(0,180,216,0.3);
+      color: var(--teal);
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-content h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+    .step-content p {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+    }
+
+    /* IMPACT */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 16px 14px;
+      text-align: center;
+    }
+    .stat-box .num {
+      font-size: 1.8rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-box .num.teal  { color: var(--teal); }
+    .stat-box .num.green { color: var(--green); }
+    .stat-box .num.accent{ color: var(--accent); }
+    .stat-box .num.white { color: var(--white); }
+    .stat-box p {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .quote-box {
+      background: linear-gradient(135deg, rgba(0,180,216,0.08), rgba(0,180,216,0.03));
+      border: 1px solid rgba(0,180,216,0.18);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 16px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .quote-box strong { color: var(--teal3); font-style: normal; }
+
+    /* TECH / OUTPUT */
+    .tech-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.65);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 8px;
+      margin: 4px 4px 4px 0;
+    }
+    .tech-tag.teal {
+      background: rgba(0,180,216,0.12);
+      border-color: rgba(0,180,216,0.3);
+      color: var(--teal3);
+    }
+
+    .output-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .output-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .output-icon.brd { background: rgba(0,180,216,0.12); border: 1px solid rgba(0,180,216,0.25); }
+    .output-icon.frd { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); }
+    .output-card h4 { font-size: 0.85rem; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+    .output-card p  { font-size: 0.7rem; color: rgba(255,255,255,0.4); line-height: 1.4; }
+
+    /* ════════════════════════════════════════
+       FLOW ROW
+    ════════════════════════════════════════ */
+    .flow-row {
+      position: relative;
+      z-index: 1;
+      padding: 32px 64px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .flow-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .flow-items {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+    .flow-icon-wrap {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      position: relative;
+    }
+    .flow-icon-wrap.blue   { background: rgba(0,180,216,0.12);  border: 1.5px solid rgba(0,180,216,0.3); }
+    .flow-icon-wrap.green  { background: rgba(16,185,129,0.12); border: 1.5px solid rgba(16,185,129,0.3); }
+    .flow-icon-wrap.orange { background: rgba(255,107,53,0.12); border: 1.5px solid rgba(255,107,53,0.3); }
+    .flow-icon-wrap.teal2  { background: rgba(0,150,199,0.12);  border: 1.5px solid rgba(0,150,199,0.3); }
+    .flow-icon-wrap.purple { background: rgba(139,92,246,0.12); border: 1.5px solid rgba(139,92,246,0.3); }
+
+    .flow-node-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      max-width: 90px;
+      line-height: 1.3;
+    }
+    .flow-arrow {
+      font-size: 1.3rem;
+      color: rgba(0,180,216,0.4);
+      margin: 0 12px;
+      padding-bottom: 24px;
+    }
+
+    /* ════════════════════════════════════════
+       FOOTER BAND
+    ════════════════════════════════════════ */
+    .footer {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(90deg, #091220 0%, #0d1d35 50%, #091220 100%);
+      padding: 28px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal2) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      border: 2px solid rgba(0,180,216,0.3);
+      flex-shrink: 0;
+    }
+    .author-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .author-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 2px;
+    }
+
+    .footer-center {
+      text-align: center;
+      flex: 1;
+    }
+    .footer-center .vote-call {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -0.01em;
+    }
+    .footer-center .vote-call span { color: var(--accent); }
+    .footer-center .vote-sub {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 4px;
+    }
+
+    .vote-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--accent) 0%, #d94e1e 100%);
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 16px 32px;
+      border-radius: 14px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 12px 32px rgba(255,107,53,0.45);
+      white-space: nowrap;
+      text-decoration: none;
+      cursor: default;
+    }
+    .vote-btn .thumb {
+      font-size: 1.3rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.2); }
+    }
+
+    /* ════════════════════════════════════════
+       TICKER STRIP (bottom)
+    ════════════════════════════════════════ */
+    .ticker {
+      background: linear-gradient(90deg, var(--teal2), var(--teal), var(--teal2));
+      padding: 10px 0;
+      display: flex;
+      gap: 0;
+      overflow: hidden;
+    }
+    .ticker-inner {
+      display: flex;
+      gap: 48px;
+      padding: 0 40px;
+      white-space: nowrap;
+      animation: tickerMove 20s linear infinite;
+    }
+    @keyframes tickerMove {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .ticker-sep {
+      color: rgba(10,22,40,0.4);
+    }
+
+    /* ════════════════════════════════════════
+       PRINT / Screenshot helpers
+    ════════════════════════════════════════ */
+    @media print {
+      body { background: var(--navy); padding: 0; }
+      .poster { width: 100%; border-radius: 0; box-shadow: none; }
+      .ticker-inner { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="poster">
+
+  <!-- ══ HERO ══════════════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-left">
+      <div class="bosch-badge">
+        <div class="bosch-dot"></div>
+        Bosch BD FAB-IN &nbsp;·&nbsp; AI Initiative 2026
+      </div>
+
+      <div class="hero-title">
+        Code&nbsp;<span class="to">to</span>&nbsp;<span class="clarity">Clarity</span>
+      </div>
+
+      <div class="hero-tagline">
+        Upload your Java project &nbsp;→&nbsp;
+        <strong>AI writes your BRD &amp; FRD</strong> in minutes
+      </div>
+
+      <div class="hero-vote-cta">
+        👍 &nbsp;Vote for this idea
+        <span class="arrow">→</span>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="mock-badge-out">✅ Live &amp; Working</div>
+      <div class="mock-window">
+        <div class="mock-titlebar">
+          <div class="dot r"></div>
+          <div class="dot y"></div>
+          <div class="dot g"></div>
+          <div class="url-bar">localhost:8080 — Code to Clarity</div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-heading">📋 Generate Requirements Docs</div>
+          <div class="mock-input">Project Name: User Management System</div>
+          <div class="mock-upload">
+            <div class="fold">📁</div>
+            <p>Java project folder selected</p>
+          </div>
+          <div class="mock-pill">
+            ✅ &nbsp;807 Java files will be uploaded
+          </div>
+          <button class="mock-btn">✨ &nbsp;Generate BRD &amp; FRD Documents</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PROBLEM STRIP ══════════════════════════════════════════ -->
+  <div class="problem-strip">
+    <div class="problem-label">⚡ The Problem</div>
+    <div class="problem-text">
+      Writing <strong>Business &amp; Functional Requirements Documents</strong> from existing code is
+      <strong>time-consuming, inconsistent</strong>, and often skipped entirely —
+      leaving stakeholders without critical documentation and teams repeating the same analysis.
+    </div>
+  </div>
+
+  <!-- ══ BODY GRID ════════════════════════════════════════════= -->
+  <div class="body-grid">
+
+    <!-- Col 1 — How it Works -->
+    <div class="body-col">
+      <div class="col-label">✦ How it works <div class="col-label-line"></div></div>
+
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Upload Your Java Project</h4>
+          <p>Select any Spring Boot project folder. The tool auto-filters and sends only <code style="color:var(--teal3)">.java</code> files — no binaries, no bloat.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>AI Analyses the Code</h4>
+          <p>Detects Controllers, Services, Entities, REST endpoints, business rules, and validations automatically.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Documents Generated by AI</h4>
+          <p>GPT-4o writes professional, stakeholder-ready <strong style="color:var(--white)">BRD</strong> and <strong style="color:var(--white)">FRD</strong> content based on real code logic.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Download &amp; Share Instantly</h4>
+          <p>BRD + FRD delivered as formatted <strong style="color:var(--white)">.docx Word documents</strong> — ready to share with your team.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Col 2 — Impact -->
+    <div class="body-col">
+      <div class="col-label">✦ Impact &amp; Value <div class="col-label-line"></div></div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="num teal">~2 min</div>
+          <p>Full BRD + FRD from a real Java project</p>
+        </div>
+        <div class="stat-box">
+          <div class="num green">2–3 days</div>
+          <p>Manual effort saved per project</p>
+        </div>
+        <div class="stat-box">
+          <div class="num accent">800+</div>
+          <p>Java files processed in a single run</p>
+        </div>
+        <div class="stat-box">
+          <div class="num white">100%</div>
+          <p>Consistent format every time</p>
+        </div>
+      </div>
+
+      <div class="quote-box">
+        "Instead of spending <strong>days</strong> reading code and writing docs,
+        my team now gets <strong>accurate BRD &amp; FRD in minutes</strong> —
+        so we can focus on building, not documenting."
+      </div>
+    </div>
+
+    <!-- Col 3 — Output & Tech -->
+    <div class="body-col">
+      <div class="col-label">✦ Output &amp; Technology <div class="col-label-line"></div></div>
+
+      <div class="output-card">
+        <div class="output-icon brd">📄</div>
+        <div>
+          <h4>Business Requirements Document</h4>
+          <p>Project overview, stakeholders, scope, functional areas, use cases &amp; constraints</p>
+        </div>
+      </div>
+
+      <div class="output-card">
+        <div class="output-icon frd">📋</div>
+        <div>
+          <h4>Functional Requirements Document</h4>
+          <p>REST API catalogue, entity model, business rules, validations &amp; exceptions</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px;">
+        <div style="font-size:0.68rem; font-weight:700; color:rgba(255,255,255,0.3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;">Tech Stack</div>
+        <span class="tech-tag teal">Python 3.11</span>
+        <span class="tech-tag teal">Flask</span>
+        <span class="tech-tag teal">GPT-4o / Gemini</span>
+        <span class="tech-tag">Spring Boot</span>
+        <span class="tech-tag">python-docx</span>
+        <span class="tech-tag">Web UI</span>
+        <span class="tech-tag">Bosch AI Gateway</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FLOW ROW ═══════════════════════════════════════════════ -->
+  <div class="flow-row">
+    <div class="flow-label">End-to-End Workflow</div>
+    <div class="flow-items">
+      <div class="flow-node">
+        <div class="flow-icon-wrap blue">📁</div>
+        <div class="flow-node-label">Java Project Folder</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-node">
+        <div class="flow-icon-wrap orange">🔍</div>
+        <div class="flow-node-label">Smart Code Analyser</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-node">
+        <div class="flow-icon-wrap purple">🤖</div>
+        <div class="flow-node-label">AI Language Model (GPT-4o)</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-node">
+        <div class="flow-icon-wrap teal2">📝</div>
+        <div class="flow-node-label">Document Generator</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-node">
+        <div class="flow-icon-wrap green">📥</div>
+        <div class="flow-node-label">BRD + FRD Download (.docx)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ═════════════════════════════════════════════════ -->
+  <div class="footer">
+    <div class="footer-left">
+      <div class="avatar">👤</div>
+      <div>
+        <div class="author-name">BD FAB-IN Team</div>
+        <div class="author-sub">Bosch Digital Innovation League 2026</div>
+      </div>
+    </div>
+
+    <div class="footer-center">
+      <div class="vote-call">Like this idea? <span>Vote for it!</span></div>
+      <div class="vote-sub">Every vote counts · Help us reach the Final Round</div>
+    </div>
+
+    <div class="vote-btn">
+      <span class="thumb">👍</span>
+      Cast Your Vote
+    </div>
+  </div>
+
+  <!-- ══ TICKER ═════════════════════════════════════════════════ -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <!-- duplicated for seamless loop -->
+      <span class="ticker-item">✦ Code to Clarity</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">AI-Powered Documentation</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">BRD &amp; FRD in Minutes</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Spring Boot &rarr; Word Document</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Bosch AI Initiative 2026</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Vote for this Idea</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">✦ Code to Clarity</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">AI-Powered Documentation</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">BRD &amp; FRD in Minutes</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Spring Boot &rarr; Word Document</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Bosch AI Initiative 2026</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Vote for this Idea</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
