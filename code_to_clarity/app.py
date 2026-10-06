@@ -183,6 +183,6 @@ if __name__ == "__main__":
 ╔══════════════════════════════════════════════╗
 ║   CODE TO CLARITY — Web UI Starting         ║
 ╚══════════════════════════════════════════════╝
-  Open the URL printed below in your browser
+  Open http://localhost:8080 in your browser
 """)
-    app.run(debug=False, host="0.0.0.0")
+    app.run(debug=False, host="0.0.0.0", port=8080)
