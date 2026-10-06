@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: code-to-clarity
+    runtime: python
+    rootDir: code_to_clarity
+    buildCommand: pip install -r requirements.txt
+    # gunicorn binds Render's $PORT; long timeout because LLM calls are slow
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 600
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
