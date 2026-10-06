@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClarityIQ - Code to Clarity — AI Requirement Discovery</title>
+  <style>
+    :root {
+      --navy   : #0A1628;
+      --navy2  : #1a2f50;
+      --teal   : #00B4D8;
+      --teal2  : #0096c7;
+      --accent : #FF6B35;
+      --gray   : #64748B;
+      --light  : #f0f4f8;
+      --white  : #ffffff;
+      --green  : #10b981;
+      --red    : #ef4444;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--light);
+      min-height: 100vh;
+      color: var(--navy);
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: white;
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 60% 0%, rgba(0,180,216,0.18) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(0,180,216,0.18);
+      border: 1px solid rgba(0,180,216,0.4);
+      color: var(--teal);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    header h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.02em;
+    }
+    header h1 span { color: var(--teal); }
+    header p {
+      color: rgba(255,255,255,0.65);
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────── */
+    .container {
+      max-width: 680px;
+      margin: 2.5rem auto 1.5rem;
+      padding: 0 1.25rem;
+    }
+
+    /* ── Card ───────────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(10,22,40,0.10), 0 1px 2px rgba(10,22,40,0.06);
+      overflow: hidden;
+    }
+    .card-header {
+      background: linear-gradient(90deg, var(--navy) 0%, #1e3a5f 100%);
+      padding: 1.4rem 1.75rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .card-header .icon { font-size: 1.4rem; }
+    .card-header h2 { font-size: 1rem; font-weight: 700; }
+    .card-header p  { font-size: 0.8rem; color: rgba(255,255,255,0.55); margin-top: 0.15rem; }
+    .card-body { padding: 1.75rem; }
+
+    /* ── Form ───────────────────────────────────────────────── */
+    .form-group { margin-bottom: 1.4rem; }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    label .req { color: var(--accent); margin-left: 2px; }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--navy);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0,180,216,0.12);
+    }
+    input[type="text"]::placeholder { color: #94a3b8; }
+
+    /* ── Upload zone ─────────────────────────────────────────── */
+    .upload-wrap { position: relative; }
+    .upload-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 2.25rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #f8fafc;
+    }
+    .upload-zone:hover  { border-color: var(--teal); background: rgba(0,180,216,0.04); }
+    .upload-zone.active { border-color: var(--teal); background: rgba(0,180,216,0.07); }
+    .upload-zone .up-icon { font-size: 2.75rem; margin-bottom: 0.6rem; display: block; }
+    .upload-zone h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.25rem; }
+    .upload-zone .sub { font-size: 0.78rem; color: var(--gray); line-height: 1.5; }
+    .upload-zone .link { color: var(--teal); font-weight: 600; }
+
+    /* invisible file input covering the zone */
+    #folderInput {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── File count pill ─────────────────────────────────────── */
+    .file-pill {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.55rem 1rem;
+      background: rgba(0,180,216,0.08);
+      border: 1px solid rgba(0,180,216,0.25);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .file-pill.show { display: flex; }
+    .file-pill .check { color: var(--green); font-size: 1rem; }
+
+    /* ── Divider ─────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e2e8f0 20%, #e2e8f0 80%, transparent);
+      margin: 1.5rem 0;
+    }
+
+    /* ── Generate button ─────────────────────────────────────── */
+    .btn-gen {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal2) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-gen:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,180,216,0.35); }
+    .btn-gen:active { transform: translateY(0); }
+    .btn-gen:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    /* ── Error banner ────────────────────────────────────────── */
+    .error-bar {
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      color: #991b1b;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 1.2rem;
+    }
+    .error-bar.show { display: flex; }
+
+    /* ── Info strip ──────────────────────────────────────────── */
+    .info-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin-top: 1.25rem;
+    }
+    .info-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.1rem 0.85rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(10,22,40,0.07);
+    }
+    .info-card .ic { font-size: 1.5rem; margin-bottom: 0.35rem; }
+    .info-card h4  { font-size: 0.78rem; font-weight: 700; color: var(--navy); }
+    .info-card p   { font-size: 0.7rem;  color: var(--gray); margin-top: 0.15rem; line-height: 1.4; }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--gray);
+      font-size: 0.76rem;
+      line-height: 1.6;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       Loading Overlay
+    ══════════════════════════════════════════════════════════ */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,22,40,0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    .overlay.show { display: flex; }
+
+    .spinner-ring {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 5px solid rgba(0,180,216,0.2);
+      border-top-color: var(--teal);
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .overlay h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .overlay .sub-text {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.55);
+      max-width: 380px;
+      line-height: 1.6;
+    }
+
+    /* Pipeline steps */
+    .steps {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+    .stp {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.4);
+      transition: all 0.3s;
+    }
+    .stp.active {
+      background: rgba(0,180,216,0.18);
+      border-color: rgba(0,180,216,0.5);
+      color: var(--teal);
+    }
+    .stp.done {
+      background: rgba(16,185,129,0.15);
+      border-color: rgba(16,185,129,0.4);
+      color: var(--green);
+    }
+
+    .overlay-note {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: -0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────── -->
+<header>
+  <div class="badge">🚀 Bosch Digital Innovation League 2026</div>
+  <h1>Code to <span>Clarity</span></h1>
+  <p>Upload your Java Spring Boot project and receive professional BRD &amp; FRD documents — powered by AI</p>
+</header>
+
+<!-- ── Main form ────────────────────────────────────────────────── -->
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">📋</span>
+      <div>
+        <h2>Generate Requirements Documents</h2>
+        <p>Provide your project name and upload your Java source folder</p>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Error banner -->
+      <div class="error-bar" id="errBar">
+        <span>⚠️</span><span id="errMsg"></span>
+      </div>
+
+      <form id="mainForm" action="/generate" method="POST" enctype="multipart/form-data">
+
+        <!-- Project name -->
+        <div class="form-group">
+          <label>Project Name <span class="req">*</span></label>
+          <input
+            type="text"
+            name="project_name"
+            id="projectName"
+            placeholder="e.g. User Management System"
+            value="User Management"
+            required
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- Folder upload -->
+        <div class="form-group">
+          <label>Java Project Folder <span class="req">*</span></label>
+          <div class="upload-wrap">
+            <div class="upload-zone" id="uploadZone">
+              <input
+                type="file"
+                name="project_folder"
+                id="folderInput"
+                webkitdirectory
+                mozdirectory
+                directory
+                multiple
+              />
+              <span class="up-icon">📁</span>
+              <h3>Click to select your Java project folder</h3>
+              <p class="sub">
+                or drag &amp; drop the folder here<br />
+                <span class="link">Browse folder</span> &nbsp;·&nbsp; Only <code>.java</code> files are uploaded
+              </p>
+            </div>
+
+            <!-- File count pill -->
+            <div class="file-pill" id="filePill">
+              <span class="check">✅</span>
+              <span id="pillText"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <button type="submit" class="btn-gen" id="genBtn">
+          ✨ &nbsp;Generate BRD &amp; FRD Documents
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Info cards -->
+  <div class="info-strip">
+    <div class="info-card">
+      <div class="ic">🔍</div>
+      <h4>Smart Code Analysis</h4>
+      <p>Detects Controllers, Services, Entities &amp; business rules</p>
+    </div>
+    <div class="info-card">
+      <div class="ic">🤖</div>
+      <h4>AI-Powered Writing</h4>
+      <p>GPT-4o generates professional, stakeholder-ready content</p>
+    </div>
+    <div class="info-card">
+      <div class="ic">📥</div>
+      <h4>Instant Download</h4>
+      <p>BRD + FRD Word documents zipped and ready to share</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ───────────────────────────────────────────────────── -->
+<footer>
+  ClarityIQ &nbsp;·&nbsp; Bosch Digital Innovation League 2026 &nbsp;·&nbsp; CONFIDENTIAL<br />
+  Documents are generated automatically from source code — review before distribution.
+</footer>
+
+<!-- ══════════════════════════════════════════════════════════════
+     Loading Overlay
+════════════════════════════════════════════════════════════════ -->
+<div class="overlay" id="overlay">
+  <div class="spinner-ring"></div>
+  <h2>Generating Documents…</h2>
+  <p class="sub-text">
+    Analysing your Java project and writing BRD &amp; FRD via AI.<br />
+    This typically takes <strong>60 – 120 seconds</strong>.
+  </p>
+
+  <div class="steps">
+    <div class="stp" id="s1">📂 Loading files</div>
+    <div class="stp" id="s2">🔍 Analysing code</div>
+    <div class="stp" id="s3">🤖 Generating BRD</div>
+    <div class="stp" id="s4">🤖 Generating FRD</div>
+    <div class="stp" id="s5">📄 Writing documents</div>
+  </div>
+
+  <p class="overlay-note">Please keep this window open until the download starts.</p>
+</div>
+
+<!-- ── Scripts ──────────────────────────────────────────────────── -->
+<script>
+  const folderInput = document.getElementById('folderInput');
+  const uploadZone  = document.getElementById('uploadZone');
+  const filePill    = document.getElementById('filePill');
+  const pillText    = document.getElementById('pillText');
+  const overlay     = document.getElementById('overlay');
+  const mainForm    = document.getElementById('mainForm');
+  const genBtn      = document.getElementById('genBtn');
+  const errBar      = document.getElementById('errBar');
+  const errMsg      = document.getElementById('errMsg');
+
+  const steps = ['s1','s2','s3','s4','s5'];
+  let stepTimers = [];
+
+  // ── Show file count when folder is selected ────────────────────
+  folderInput.addEventListener('change', () => {
+    const all  = Array.from(folderInput.files);
+    const java = all.filter(f => f.name.endsWith('.java'));
+    const skipped = all.length - java.length;
+    if (all.length > 0) {
+      pillText.textContent =
+        `${java.length} Java file${java.length !== 1 ? 's' : ''} will be uploaded` +
+        (skipped > 0 ? `  (${skipped} non-Java files skipped automatically)` : '');
+      filePill.classList.add('show');
+      uploadZone.classList.add('active');
+    }
+  });
+
+  // ── Drag-over styling ──────────────────────────────────────────
+  ['dragover','dragenter'].forEach(ev =>
+    uploadZone.addEventListener(ev, e => {
+      e.preventDefault();
+      uploadZone.classList.add('active');
+    })
+  );
+  ['dragleave','drop'].forEach(ev =>
+    uploadZone.addEventListener(ev, () => uploadZone.classList.remove('active'))
+  );
+
+  // ── Form submit — use fetch() so we know when the download is ready ──
+  mainForm.addEventListener('submit', async e => {
+    e.preventDefault();   // ← always prevent default form navigation
+    hideError();
+
+    const all  = Array.from(folderInput.files);
+    const java = all.filter(f => f.name.endsWith('.java'));
+
+    if (all.length === 0) {
+      showError('Please select a project folder before generating.');
+      return;
+    }
+    if (java.length === 0) {
+      showError('No .java files found in the selected folder. Please choose a Java project.');
+      return;
+    }
+
+    // Show overlay
+    overlay.classList.add('show');
+    genBtn.disabled = true;
+    animateSteps();
+
+    try {
+      // Build FormData with ONLY .java files so binary/build-artifact files
+      // (target/, build/, *.jar, *.class, …) are never sent to the server.
+      const formData = new FormData();
+      formData.append('project_name', document.getElementById('projectName').value.trim());
+      java.forEach(f => formData.append('project_folder', f, f.webkitRelativePath || f.name));
+
+      const response = await fetch('/generate', {
+        method: 'POST',
+        body: formData,
+      });
+
+      // Clear step timers so they stop mid-animation
+      stepTimers.forEach(t => clearTimeout(t));
+
+      if (!response.ok) {
+        // Try to parse error message from JSON
+        let errText = `Server error ${response.status}`;
+        try {
+          const json = await response.json();
+          errText = json.error || errText;
+        } catch (_) {}
+        throw new Error(errText);
+      }
+
+      // ── Mark all steps done ──────────────────────────────────
+      steps.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('active');
+        el.classList.add('done');
+      });
+
+      // ── Trigger file download from the blob ──────────────────
+      const blob        = await response.blob();
+      const disposition = response.headers.get('Content-Disposition') || '';
+      const nameMatch   = disposition.match(/filename[^;=\n]*=["']?([^"';\n]+)/i);
+      const fileName    = nameMatch ? nameMatch[1].trim() : 'BRD_FRD_Documents.zip';
+
+      const url  = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href  = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+
+      // ── Show success state then close overlay ────────────────
+      showSuccess();
+      setTimeout(() => hideOverlay(), 3500);
+
+    } catch (err) {
+      stepTimers.forEach(t => clearTimeout(t));
+      hideOverlay();
+      showError(err.message || 'An unexpected error occurred. Please try again.');
+    }
+  });
+
+  // ── Step animator ──────────────────────────────────────────────
+  function animateSteps() {
+    stepTimers = [];
+    const delays = [0, 4000, 10000, 75000, 140000];
+    steps.forEach((id, i) => {
+      if (i > 0) {
+        stepTimers.push(setTimeout(() => {
+          document.getElementById(steps[i - 1]).classList.remove('active');
+          document.getElementById(steps[i - 1]).classList.add('done');
+        }, delays[i]));
+      }
+      stepTimers.push(setTimeout(() => {
+        document.getElementById(id).classList.add('active');
+      }, delays[i]));
+    });
+  }
+
+  // ── Overlay helpers ────────────────────────────────────────────
+  function hideOverlay() {
+    overlay.classList.remove('show');
+    // Reset steps for next run
+    steps.forEach(id => {
+      document.getElementById(id).classList.remove('active', 'done');
+    });
+    genBtn.disabled = false;
+  }
+
+  function showSuccess() {
+    const spinner = overlay.querySelector('.spinner-ring');
+    const title   = overlay.querySelector('h2');
+    const sub     = overlay.querySelector('.sub-text');
+    const note    = overlay.querySelector('.overlay-note');
+
+    spinner.style.borderTopColor = '#10b981';
+    spinner.style.animation = 'none';
+    spinner.style.border    = '5px solid #10b981';
+    spinner.innerHTML       = '<span style="font-size:2rem;line-height:68px;display:block;text-align:center">✅</span>';
+    title.textContent       = 'Documents Ready!';
+    sub.innerHTML           = 'Your <strong>BRD</strong> &amp; <strong>FRD</strong> documents have been downloaded as a ZIP file.';
+    note.textContent        = 'Closing in a moment…';
+
+    // Reset visuals after overlay hides
+    setTimeout(() => {
+      spinner.style = '';
+      spinner.innerHTML = '';
+      title.textContent = 'Generating Documents…';
+      sub.innerHTML     = 'Analysing your Java project and writing BRD &amp; FRD via AI.<br/>This typically takes <strong>60 – 120 seconds</strong>.';
+      note.textContent  = 'Please keep this window open until the download starts.';
+    }, 4000);
+  }
+
+  // ── Error helpers ──────────────────────────────────────────────
+  function showError(msg) {
+    errMsg.textContent = msg;
+    errBar.classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function hideError() {
+    errBar.classList.remove('show');
+  }
+</script>
+
+</body>
+</html>
