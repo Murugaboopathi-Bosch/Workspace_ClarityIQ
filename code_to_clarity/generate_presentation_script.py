@@ -274,7 +274,7 @@ doc.add_page_break()
 add_section_banner(doc, "SECTION 5", "Live Demo Walkthrough")
 add_timing_box(doc, "2 – 3 minutes")
 
-add_speaker_note(doc, "Switch to your browser. Have the app running in your browser. Have the sample Java project ready to upload.")
+add_speaker_note(doc, "Switch to your browser. Have the app running at http://localhost:8080 (or 5050). Have the sample Java project ready to upload.")
 
 add_speaking_block(doc, "SAY:", "Let me show you this live. I have the application running right here.")
 
