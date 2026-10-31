@@ -35,9 +35,7 @@ except ImportError:
 CONFIG = {
     "project_path" : "./sample-java-project",   # ← path to your Java project
     "project_name" : "User Management",         # ← name shown in documents 
-    # "genaiplatform-farm-subscription-key": "REDACTED",  # ← your OpenAI API key (or set OPENAI_API_KEY env var)
-    # "genaiplatform-farm-subscription-key": "REDACTED",                        # Thamarai ← your OpenAI API key (or set OPENAI_API_KEY env var)
-    "genaiplatform-farm-subscription-key": "REDACTED",                        # ← your OpenAI API key (or set OPENAI_API_KEY env var)
+    "genaiplatform-farm-subscription-key": "",  # leave empty; set the OPENAI_API_KEY env var
     "openai_base_url": "https://aoai-farm.bosch-temp.com/api/openai/deployments/askbosch-prod-farm-openai-gpt-4o-mini-2024-07-18/chat/completions?api-version=2024-08-01-preview",                       # ← optional: Bosch gateway URL (leave blank for default)
     "openai_model"  : "gpt-4o",                  # ← model to use
     "output_dir"    : "./output",
@@ -505,7 +503,7 @@ def main():
     cfg          = CONFIG
     project_path = sys.argv[1] if len(sys.argv) > 1 else cfg["project_path"]
     project_name = sys.argv[2] if len(sys.argv) > 2 else cfg["project_name"]
-    api_key      = cfg["genaiplatform-farm-subscription-key"]
+    api_key      = cfg["genaiplatform-farm-subscription-key"] or os.environ.get("OPENAI_API_KEY", "")
     model_name   = cfg["openai_model"]
     base_url     = cfg["openai_base_url"] or None
 
